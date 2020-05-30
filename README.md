@@ -73,4 +73,5 @@ for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; +
     }
 }
 ```
+**MY CLASS WILL WORK WITH ENERGY INSTEAD OF MANA, THAT'S WHY I USED THE WARRIOR ONE**
 1. We add a *break;* and the case for our class
