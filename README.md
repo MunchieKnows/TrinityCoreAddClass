@@ -3,6 +3,13 @@ How to add a class with features to TrinityCore
 
 Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
 
+## Table of contents
+1. Changes to the core files
+   1. [shareddefines.h](https://github.com/MunchieKnows/TrinityCoreAddClass#shareddefinesh)
+   2. [objectmgr.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#objectmgrcpp)
+   3. [player.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#playercpp)
+   4. [spell_item.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#spell_itemcpp)
+
 ## Changes to the core files
 
 ###### shareddefines.h
