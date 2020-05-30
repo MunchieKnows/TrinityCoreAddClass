@@ -41,4 +41,7 @@ enum SpellFamilyNames
 	SPELLFAMILY_HERO		    = 18 
 };
 ```
-1. We add the class ID, this is going to be the class number and with what we will calculate the CLASS_MASK (this case 2048)
+1. Add the class ID, this is going to be the class number and with what we will calculate the CLASS_MASK (this case 2048)
+2. Up the number of classes (in this case 12+1)
+3. Define the class as playable (classes can be used only as npc usable)
+4. Add the spellfamily (very important to remember this number, we will use it later to create spells for this class)
