@@ -158,3 +158,6 @@ void HandleDummy(SpellEffIndex /*effIndex*/)
                         break;
 ```
 This is just for complementing more data for the new class on how things interact with it
+
+
+**THIS CORE SHOULD COMPILE AND BUILD WITHOUT PROBLEM, CHECK IF IT DOES**
