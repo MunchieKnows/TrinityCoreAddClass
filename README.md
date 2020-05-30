@@ -12,7 +12,7 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
 
 ## Changes to the core files
 
-###### shareddefines.h
+### shareddefines.h
 We add the class so that the core will enable the creation of the class, this are the changes to make:
 ```
 enum Classes
@@ -89,7 +89,7 @@ enum PlayerSpecializations
 4. Add the spellfamily (very important to remember this number, we will use it later to create spells for this class)
 5. Add the specialization (will be used to add talents and spells to book)
 
-###### objectmgr.cpp
+### objectmgr.cpp
 This here controls de gain of stats each level, I just copied the warrior ones in this case
 
 This works as a bool, it stablishes that if the player is over lvl 23 he gains 2 points of strenght each level, but if he's not over lvl 23 but over lvl 1 he gains 1
@@ -119,7 +119,7 @@ for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; +
 **MY CLASS WILL WORK WITH ENERGY INSTEAD OF MANA, THAT'S WHY I USED THE WARRIOR ONE**
 1. We add a *break;* and the case for our class
 
-###### player.cpp
+### player.cpp
 
 ```
 if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT || _class == CLASS_MONK)
@@ -145,7 +145,7 @@ const float crit_to_dodge[MAX_CLASSES] =
 2. Dodge based on agility, use values you want
 3. Like dodge from agilty, use values you want
 
-###### spell_item.cpp
+### spell_item.cpp
 ```
 void HandleDummy(SpellEffIndex /*effIndex*/)
             {
