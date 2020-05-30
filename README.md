@@ -48,6 +48,7 @@ enum SpellFamilyNames
 
 ###### objectmgr.cpp
 This here controls de gain of stats each level, I just copied the warrior ones in this case
+
 This works as a bool, it stablishes that if the player is over lvl 23 he gains 2 points of strenght each level, but if he's not over lvl 23 but over lvl 1 he gains 1
 ```
 for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
