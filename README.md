@@ -35,10 +35,10 @@ enum Classes
     
 enum SpellFamilyNames
 {
-	SPELLFAMILY_DEATHKNIGHT = 15,
+  SPELLFAMILY_DEATHKNIGHT = 15,
   // 16 - unused
-  SPELLFAMILY_PET         = 17,
-	SPELLFAMILY_HERO		    = 18 
+  SPELLFAMILY_PET	        = 17,
+  SPELLFAMILY_MONK		= 18 
 };
 ```
 1. Add the class ID, this is going to be the class number and with what we will calculate the CLASS_MASK (this case 2048)
