@@ -111,3 +111,50 @@ for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; +
 ```
 **MY CLASS WILL WORK WITH ENERGY INSTEAD OF MANA, THAT'S WHY I USED THE WARRIOR ONE**
 1. We add a *break;* and the case for our class
+
+###### player.cpp
+
+```
+if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT || _class == CLASS_MONK)
+
+const float dodge_base[MAX_CLASSES] =
+    {
+         0.024211f, // Warlock
+         0.0f,      // ??
+         0.056097f,  // Druid
+	 0.064974f  // Monk
+    };
+    
+const float crit_to_dodge[MAX_CLASSES] =
+    {         
+	 1.00f/1.15f,    // Mage
+         0.97f/1.15f,    // Warlock (?)
+         0.0f,           // ??
+         2.00f/1.15f,     // Druid
+	 1.75f/1.15f	 // Monk
+    };
+```
+1. The LFG (looking for group) system needs to know if classes can roll for certain items, I'm setting it with plate users, you can do whatever you want
+2. Dodge based on agility, use values you want
+3. Like dodge from agilty, use values you want
+
+###### spell_item.cpp
+```
+void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                std::vector<uint32> possibleSpells;
+                switch (caster->getClass())
+                {
+                    case CLASS_WARLOCK:
+                    case CLASS_MAGE:
+                    case CLASS_PRIEST:
+                        possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_SP);
+                        break;
+		    case CLASS_MONK:
+		    case CLASS_DEATH_KNIGHT:
+                    case CLASS_WARRIOR:
+                        possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_STR);
+                        break;
+```
+This is just for complementing more data for the new class on how things interact with it
