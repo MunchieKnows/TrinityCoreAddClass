@@ -40,11 +40,47 @@ enum SpellFamilyNames
   SPELLFAMILY_PET	        = 17,
   SPELLFAMILY_MONK		= 18 
 };
+
+enum PlayerSpecializations
+{
+    SPEC_WARRIOR_ARMS = 0,
+    SPEC_WARRIOR_FURY = 1,
+    SPEC_WARRIOR_PROTECTION = 2,
+    SPEC_PALADIN_HOLY = 0,
+    SPEC_PALADIN_PROTECTION = 1,
+    SPEC_PALADIN_RETRIBUTION = 2,
+    SPEC_HUNTER_BEAST_MASTERY = 0,
+    SPEC_HUNTER_MARKSMANSHIP = 1,
+    SPEC_HUNTER_SURVIVAL = 2,
+    SPEC_ROGUE_ASSASSINATION = 0,
+    SPEC_ROGUE_COMBAT = 1,
+    SPEC_ROGUE_SUBLETY = 2,
+    SPEC_PRIEST_DISCIPLINE = 0,
+    SPEC_PRIEST_HOLY = 1,
+    SPEC_PRIEST_SHADOW = 2,
+    SPEC_DEATH_KNIGHT_BLOOD = 0,
+    SPEC_DEATH_KNIGHT_FROST = 1,
+    SPEC_DEATH_KNIGHT_UNHOLY = 2,
+    SPEC_SHAMAN_ELEMENTAL = 0,
+    SPEC_SHAMAN_ENHANCEMENT = 1,
+    SPEC_SHAMAN_RESTORATION = 2,
+    SPEC_MAGE_ARCANE = 0,
+    SPEC_MAGE_FIRE = 1,
+    SPEC_MAGE_FROST = 2,
+    SPEC_WARLOCK_AFFLICTION = 0,
+    SPEC_WARLOCK_DEMONOLOGY = 1,
+    SPEC_WARLOCK_DESTRUCTION = 2,
+    SPEC_DRUID_BALANCE = 0,
+    SPEC_DRUID_FERAL = 1,
+    SPEC_DRUID_RESTORATION = 2,
+    SPEC_MONK_BREWMASTER = 0
+};
 ```
 1. Add the class ID, this is going to be the class number and with what we will calculate the CLASS_MASK (this case 2048)
 2. Up the number of classes (in this case 12+1)
 3. Define the class as playable (classes can be used only as npc usable)
 4. Add the spellfamily (very important to remember this number, we will use it later to create spells for this class)
+5. Add the specialization (will be used to add talents and spells to book)
 
 ###### objectmgr.cpp
 This here controls de gain of stats each level, I just copied the warrior ones in this case
