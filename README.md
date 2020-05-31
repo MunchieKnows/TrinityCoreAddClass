@@ -44,8 +44,8 @@ enum SpellFamilyNames
 {
   SPELLFAMILY_DEATHKNIGHT = 15,
   // 16 - unused
-  SPELLFAMILY_PET	        = 17,
-  SPELLFAMILY_MONK		= 18 
+  SPELLFAMILY_PET	  = 17,
+  SPELLFAMILY_MONK	  = 18 
 };
 
 enum PlayerSpecializations
