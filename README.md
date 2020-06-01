@@ -10,7 +10,10 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
    3. [player.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#playercpp)
    4. [spell_item.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#spell_itemcpp)
 2. Changes to the interface files
-   1. []()
+   1. [CharacterCreate.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-charactercreatelua)
+   2. [CharacterCreate.xml](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-charactercreatexml)
+   3. [GlueStrings.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-gluestringslua)
+   4. [Constants.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#framexml-constantslua)
 
 ## Changes to the core files
 
