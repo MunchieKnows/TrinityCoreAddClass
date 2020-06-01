@@ -9,6 +9,8 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
    2. [objectmgr.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#objectmgrcpp)
    3. [player.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#playercpp)
    4. [spell_item.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#spell_itemcpp)
+2. Changes to the interface files
+   1. []()
 
 ## Changes to the core files
 
@@ -173,7 +175,7 @@ This is just for complementing more data for the new class on how things interac
 
 **THIS CHANGES WILL REQUIRE YOU TO HAVE BOTH GLUEXML AND FRAMEXML CHECKS DISABLED FROM THE WOW.EXE**
 
-###GlueXML CharacterCreate.lua
+### GlueXML CharacterCreate.lua
 ```
 CHARACTER_FACING_INCREMENT = 2;
 MAX_RACES = 10;
@@ -200,7 +202,7 @@ CLASS_ICON_TCOORDS = {
 1. Up the max classes per race, so 10+1 in this case
 2. Add the icon (You have to update the CharacterCreate-classes.blp image with the new icon in it)
 
-###GlueXML CharacterCreate.xml
+### GlueXML CharacterCreate.xml
 ```
 <CheckButton name="CharacterCreateClassButton11" inherits="CharacterCreateClassButtonTemplate" id="11">
 	<Anchors>
@@ -210,7 +212,7 @@ CLASS_ICON_TCOORDS = {
 ```
 We add the button
 
-###GlueXML GlueStrings.lua
+### GlueXML GlueStrings.lua
 ```
 CLASS_DRUID_FEMALE = "Los druidas cambian de forma y sienten afinidad por el reino animal y vegetal. Existen tres tipos: los de Equilibrio, que lanzan hechizos de Naturaleza o Arcanos a distancia; los Ferales, que pueden adoptar la forma felina o de oso para luchar cuerpo a cuerpo; y los de Restauración, que sanan a sus aliados y se centran en los hechizos de sanación en el tiempo. Sus estadísticas principales dependen de su función.";
 CLASS_MONK = "Los Monjes son maestros en la lucha a mano limpia y utilizan sus armas solamente para llevar a cabo ejecuciones finales devastadoras.";
@@ -231,7 +233,7 @@ HERTZ = "Hz";
 
 Add the strings for the new class (mine are in spanish, use your locale)
 
-###FrameXML constants.lua
+### FrameXML constants.lua
 ```
 RAID_CLASS_COLORS = {
 	["HUNTER"] = { r = 0.67, g = 0.83, b = 0.45 },
