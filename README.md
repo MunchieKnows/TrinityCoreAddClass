@@ -168,3 +168,114 @@ This is just for complementing more data for the new class on how things interac
 
 
 **THIS CORE SHOULD COMPILE AND BUILD WITHOUT PROBLEM, CHECK IF IT DOES**
+
+## Changes to the interface files
+
+**THIS CHANGES WILL REQUIRE YOU TO HAVE BOTH GLUEXML AND FRAMEXML CHECKS DISABLED FROM THE WOW.EXE**
+
+###GlueXML CharacterCreate.lua
+```
+CHARACTER_FACING_INCREMENT = 2;
+MAX_RACES = 10;
+MAX_CLASSES_PER_RACE = 11;
+NUM_CHAR_CUSTOMIZATIONS = 5;
+MIN_CHAR_NAME_LENGTH = 2;
+CHARACTER_CREATE_ROTATION_START_X = nil;
+CHARACTER_CREATE_INITIAL_FACING = nil;
+
+CLASS_ICON_TCOORDS = {
+	["WARRIOR"]	= {0, 0.25, 0, 0.25},
+	["MAGE"]	= {0.25, 0.49609375, 0, 0.25},
+	["ROGUE"]	= {0.49609375, 0.7421875, 0, 0.25},
+	["DRUID"]	= {0.7421875, 0.98828125, 0, 0.25},
+	["HUNTER"]	= {0, 0.25, 0.25, 0.5},
+	["SHAMAN"]	= {0.25, 0.49609375, 0.25, 0.5},
+	["PRIEST"]	= {0.49609375, 0.7421875, 0.25, 0.5},
+	["WARLOCK"]	= {0.7421875, 0.98828125, 0.25, 0.5},
+	["PALADIN"]	= {0, 0.25, 0.5, 0.75},
+	["DEATHKNIGHT"]	= {0.25, 0.49609375, 0.5, 0.75},
+	["MONK"]	= {0.49609375, 0.7421875, 0.5, 0.75}
+};
+```
+1. Up the max classes per race, so 10+1 in this case
+2. Add the icon (You have to update the CharacterCreate-classes.blp image with the new icon in it)
+
+###GlueXML CharacterCreate.xml
+```
+<CheckButton name="CharacterCreateClassButton11" inherits="CharacterCreateClassButtonTemplate" id="11">
+	<Anchors>
+		<Anchor point="LEFT" relativeTo="CharacterCreateClassButton10" relativePoint="RIGHT" x="6" y="0"/>
+	</Anchors>
+</CheckButton>
+```
+We add the button
+
+###GlueXML GlueStrings.lua
+```
+CLASS_DRUID_FEMALE = "Los druidas cambian de forma y sienten afinidad por el reino animal y vegetal. Existen tres tipos: los de Equilibrio, que lanzan hechizos de Naturaleza o Arcanos a distancia; los Ferales, que pueden adoptar la forma felina o de oso para luchar cuerpo a cuerpo; y los de Restauración, que sanan a sus aliados y se centran en los hechizos de sanación en el tiempo. Sus estadísticas principales dependen de su función.";
+CLASS_MONK = "Los Monjes son maestros en la lucha a mano limpia y utilizan sus armas solamente para llevar a cabo ejecuciones finales devastadoras.";
+CLASS_MONK_FEMALE = "Los Monjes son maestros en la lucha a mano limpia y utilizan sus armas solamente para llevar a cabo ejecuciones finales devastadoras.";
+[...]
+CLASS_INFO_DEATHKNIGHT5 = "- Usa runas como recurso.";
+CLASS_INFO_MONK0 = "- Función: Daño";
+CLASS_INFO_MONK1 = "- Armadura media (cuero)";
+CLASS_INFO_MONK2 = "- Gran agilidad.";
+CLASS_INFO_MONK3 = "- Combate cuerpo a cuerpo.";
+CLASS_INFO_MONK4 = "- Usa energía como recurso.";
+CLASS_INFO_DRUID0 = "- Función: Daño, tanque, sanador";
+[...]
+HELP = "Ayuda";
+MONK_DISABLED = "Monje\nDebes elegir una raza diferente para ser de esta clase.";
+HERTZ = "Hz";
+```
+
+Add the strings for the new class (mine are in spanish, use your locale)
+
+###FrameXML constants.lua
+```
+RAID_CLASS_COLORS = {
+	["HUNTER"] = { r = 0.67, g = 0.83, b = 0.45 },
+	["WARLOCK"] = { r = 0.58, g = 0.51, b = 0.79 },
+	["PRIEST"] = { r = 1.0, g = 1.0, b = 1.0 },
+	["PALADIN"] = { r = 0.96, g = 0.55, b = 0.73 },
+	["MAGE"] = { r = 0.41, g = 0.8, b = 0.94 },
+	["ROGUE"] = { r = 1.0, g = 0.96, b = 0.41 },
+	["DRUID"] = { r = 1.0, g = 0.49, b = 0.04 },
+	["SHAMAN"] = { r = 0.0, g = 0.44, b = 0.87 },
+	["WARRIOR"] = { r = 0.78, g = 0.61, b = 0.43 },
+	["DEATHKNIGHT"] = { r = 0.77, g = 0.12 , b = 0.23 },
+	["MONK"] = { r = 0.60, g = 0.90, b = 0.40 },
+};
+
+CLASS_SORT_ORDER = {
+	"WARRIOR",
+	"DEATHKNIGHT",
+	"PALADIN",
+	"PRIEST",
+	"SHAMAN",
+	"DRUID",
+	"ROGUE",
+	"MAGE",
+	"WARLOCK",
+	"HUNTER",
+	"MONK",
+};
+
+CLASS_ICON_TCOORDS = {
+	["WARRIOR"]		= {0, 0.25, 0, 0.25},
+	["MAGE"]		= {0.25, 0.49609375, 0, 0.25},
+	["ROGUE"]		= {0.49609375, 0.7421875, 0, 0.25},
+	["DRUID"]		= {0.7421875, 0.98828125, 0, 0.25},
+	["HUNTER"]		= {0, 0.25, 0.25, 0.5},
+	["SHAMAN"]	 	= {0.25, 0.49609375, 0.25, 0.5},
+	["PRIEST"]		= {0.49609375, 0.7421875, 0.25, 0.5},
+	["WARLOCK"]		= {0.7421875, 0.98828125, 0.25, 0.5},
+	["PALADIN"]		= {0, 0.25, 0.5, 0.75},
+	["DEATHKNIGHT"]		= {0.25, .5, 0.5, .75},
+	["MONK"]		= {0.49609375, 0.7421875, 0.5, 0.75},
+};
+```
+
+1. Color for /who
+2. Class order
+3. Icon again
