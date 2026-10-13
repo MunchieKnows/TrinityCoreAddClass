@@ -9,11 +9,13 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
    2. [objectmgr.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#objectmgrcpp)
    3. [player.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#playercpp)
    4. [spell_item.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#spell_itemcpp)
+   5. [stat_system.cpp](https://github.com/MunchieKnows/TrinityCoreAddClass#stat_systemcpp)
 2. [Changes to the interface files](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#changes-to-the-interface-files)
    1. [CharacterCreate.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-charactercreatelua)
    2. [CharacterCreate.xml](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-charactercreatexml)
    3. [GlueStrings.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-gluestringslua)
    4. [Constants.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#framexml-constantslua)
+   5. [DBC ChrClasses.dbc](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#dbc-chrclassesdbc)
 3. [Starting gear](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#starting-gear)
    1. [CharStartOutfit.dbc](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#charstartoutfitdbc)
    2. [playercreateinfo (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo-world-database)
@@ -22,6 +24,10 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
 4. [Abilities and talents](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#abilities-and-talents)
    1. [Adding spells (Spell.dbc)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#adding-spells-spelldbc)
    2. [Adding talents (Talent.dbc + TalentTab.dbc)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#adding-talents-talentdbc--talenttabdbc)
+5. [Base stats and level data (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#base-stats-and-level-data-world-database)
+   1. [player_classlevelstats](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#player_classlevelstats)
+   2. [player_levelstats](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#player_levelstats)
+   3. [playercreateinfo_skills](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo_skills)
 
 ## Changes to the core files
 
@@ -180,6 +186,22 @@ void HandleDummy(SpellEffIndex /*effIndex*/)
 This is just for complementing more data for the new class on how things interact with it
 
 
+### stat_system.cpp
+The diminishing returns caps are per-class arrays. If you don't add an entry for our class (index = class-1 = 11) it is silently zeroed and the monk loses ALL diminishing dodge/parry/miss from rating and defense skill. This affects four arrays: `m_diminishing_k`, `miss_cap`, `parry_cap` and `dodge_cap`.
+
+Example (`dodge_cap`, add the monk value after druid, copy the rogue one in this case):
+```
+float const dodge_cap[MAX_CLASSES] =
+{
+    88.129021f,     // Warrior
+    [...]
+    0.0f,           // ??
+    116.890707f,    // Druid
+    145.560408f     // Monk
+};
+```
+1. Add a monk value at the end of each of the four arrays (after druid), copy the rogue values in this case
+
 **THIS CORE SHOULD COMPILE AND BUILD WITHOUT PROBLEM, CHECK IF IT DOES**
 
 ## Changes to the interface files
@@ -292,6 +314,16 @@ CLASS_ICON_TCOORDS = {
 1. Color for /who
 2. Class order
 3. Icon again
+### DBC ChrClasses.dbc
+**THIS ONE IS MANDATORY: THE CORE LOOKS UP THE CLASS IN THIS DBC WHEN CREATING A CHARACTER, WITHOUT IT CREATION FAILS ("Class (12) not found in DBC") AND YOUR `playercreateinfo` ROWS ARE REJECTED AT STARTUP**
+
+Add a row for the monk:
+- id = 12
+- DisplayPower = 3 (energy) - **THIS IS WHERE THE CORE GETS THE CLASS POWER TYPE FROM (`uint8 powertype = cEntry->DisplayPower` in Player.cpp), THAT'S WHY THE MONK USES ENERGY WITHOUT ANY CODE CHANGE**
+- name in your locale ("Monje"), copy the rest of the fields from an existing row
+
+Save it to both the client Data folder and the server dbc folder (the core loads it too)
+
 
 ## Starting gear
 
@@ -447,3 +479,34 @@ tier 2: [Jade Serpent Strike (requires 5 in Tiger Palm)]
 - row id=902: tab=10, tier=2, col=1, spellRank1=60002, prereqTalent=900, prereqRank=5, flags=0
 
 **AFTER UPDATING THE DBCs RESTART THE SERVER AND CHECK THE LOG: EVERY "does not exist" ERROR MEANS A SPELL OR TALENT REFERENCE IS WRONG. THEN CREATE A MONK AND OPEN ITS TALENT WINDOW TO VERIFY THE TREE**
+
+## Base stats and level data (world database)
+
+**THE CORE ABORTS AT STARTUP IF THIS DATA IS MISSING FOR A CLASS PRESENT IN ChrClasses.dbc, SO THIS SECTION IS MANDATORY**
+
+### player_classlevelstats
+Base health/mana per class per level. Without a level 1 row for the monk the server refuses to start ("Class 12 Level 1 does not have health/mana data!"). The simplest way is to derive it from an existing class:
+```sql
+-- copy the rogue rows (basemana = 0, we use energy)
+INSERT INTO `player_classlevelstats` (`class`, `level`, `basehp`, `basemana`)
+SELECT 12, level, basehp, 0 FROM `player_classlevelstats` WHERE class = 4;
+```
+
+### player_levelstats
+Base stats (str/agi/sta/inte/spi) per race/class per level. Without a level 1 row for every race that can create a monk the server refuses to start ("Race X Class 12 Level 1 does not have stats data!").
+```sql
+-- copy the rogue rows of each playable race
+INSERT INTO `player_levelstats` (`race`, `class`, `level`, `str`, `agi`, `sta`, `inte`, `spi`)
+SELECT race, 12, level, str, agi, sta, inte, spi FROM `player_levelstats` WHERE class = 4;
+```
+Missing levels are filled from the previous one at startup, but a missing level 1 is fatal.
+
+### playercreateinfo_skills
+Skills learned on creation (languages, first aid, fishing...). Not fatal if empty, but your monk will spawn without them:
+```sql
+-- example: first aid for human monks (raceMask/classmask are bitmasks, repeat per race or combine masks)
+INSERT INTO `playercreateinfo_skills` (`raceMask`, `classMask`, `skill`, `rank`) VALUES
+(1, 2048, 129, 75);
+```
+
+**AFTER IMPORTING ALL OF THIS THE SERVER SHOULD START WITHOUT "does not have ... data" ERRORS: CREATE A MONK AND CHECK IT HAS SANE BASE STATS AT LEVEL 1**
