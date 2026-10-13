@@ -19,6 +19,9 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
    2. [playercreateinfo (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo-world-database)
    3. [playercreateinfo_item (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo_item-world-database)
    4. [Starting spells and action bar (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#starting-spells-and-action-bar-world-database)
+4. [Abilities and talents](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#abilities-and-talents)
+   1. [Adding spells (Spell.dbc)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#adding-spells-spelldbc)
+   2. [Adding talents (Talent.dbc + TalentTab.dbc)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#adding-talents-talentdbc--talenttabdbc)
 
 ## Changes to the core files
 
@@ -358,3 +361,89 @@ INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `typ
 Add here the starter spells of your monk work (the ones from the spell family we defined above).
 
 **AFTER UPDATING THE DBC AND IMPORTING THE SQL, RESTART THE SERVER AND CREATE A MONK: IT SHOULD SPAWN WITH ITS GEAR EQUIPPED AT THE RIGHT POSITION. IF IT SPAWNS EMPTY, CHECK THE LOG FOR `CharStartOutfit`/`item_template` ERRORS**
+
+## Abilities and talents
+
+**SPELLS AND TALENTS ARE DATA-DRIVEN: YOU EDIT `Spell.dbc`, `Talent.dbc` AND `TalentTab.dbc` (CLIENT DBCs, THE CORE READS THEM TOO). NO CORE CODE CHANGES ARE NEEDED FOR THIS PART**
+
+### Adding spells (Spell.dbc)
+The workflow is always the same: copy an existing row of a similar spell and modify the fields. Pick free ids above the last existing row (the examples below use 60001-60003, adjust to your file).
+
+Fields that matter for a simple monk spell (full list in the `spellsdbc.txt` notes):
+```
+1   id               unique spell id
+4-11 attributes     leave 0x10000 (prevents cast when shapeshifted)
+16  target type      copy from your reference spell
+28  cast time row    row in SpellCastTimes.dbc, 0 = instant
+40  duration index   row in SpellDuration.dbc (for auras), 0 if not used
+41  powertype        3 = energy (our class resource)
+46  rangeindex       row in SpellRange.dbc, melee spells use the melee row
+71-73 spell effects  order matters: first effect uses 71/80/95, second 72/81/96, third 73/82/97
+80-82 effectbasepoints damage/heal amount of each effect
+95-97 aura type      only when the effect is APPLY_AURA (e.g. 3 = periodic damage)
+98-100 amplitude    tick in ms / bonus value of the aura, per effect
+131-134 visuals/icons any valid ids from SpellVisual/SpellIcon.dbc
+142 name             spell name
+159 rank             0 for a single-rank spell
+153-168 ranks        all 0 for a single-rank spell
+208 spellfamilyname  18 (SPELLFAMILY_MONK, the one we defined in shareddefines.h)
+```
+
+**Example 1: basic attack (instant physical damage, energy cost)**
+Copy any instant melee spell and set:
+- 71 = 2 (`SPELL_EFFECT_SCHOOL_DAMAGE`), 72-73 = 0
+- 225 = 1 (physical school of damage)
+- 80 = base damage (e.g. 50), 81-82 = 0
+- 41 = 3 (energy), 28 = 0 (instant), 46 = melee range row
+- 142 = "Tiger Palm", 208 = 18
+
+**Example 2: dot (periodic damage aura)**
+Copy any poison/dot spell and set:
+- 71 = 6 (`SPELL_EFFECT_APPLY_AURA`)
+- 95 = 3 (`SPELL_AURA_PERIODIC_DAMAGE`)
+- 40 = duration row in SpellDuration.dbc (e.g. 12s), 98 = tick in ms (e.g. 2000)
+- 80 = damage per tick (e.g. 25)
+- 41 = 3 (energy), 28 = 0 (instant)
+- 142 = "Jade Serpent Strike", 208 = 18
+
+**Example 3: energy drink (instant)**
+Copy any drink/food spell and set:
+- 71 = 30 (`SPELL_EFFECT_ENERGIZE`), 80 = energy restored (e.g. 40)
+- 28 = 0 (instant), keep the self target of your reference drink
+- 142 = "Brew", 208 = 18
+
+**REMEMBER: SET 208 = 18 ON EVERY MONK SPELL, THE CORE USES THE SPELLFAMILY TO KNOW THE SPELL BELONGS TO OUR CLASS (THE ONE WE ADDED IN shareddefines.h)**
+
+Starter abilities that are not talents can be given on character creation with `playercreateinfo_spell_custom` (see the starting gear section). Later, if you want a buff instead of a dot, use 95 = 29 (`SPELL_AURA_MOD_STAT`) and put the stat index in the effect misc value field (0=strength, 1=agility, 2=stamina, 3=intellect, 4=spirit).
+
+### Adding talents (Talent.dbc + TalentTab.dbc)
+In TrinityCore 3.3.5 talents are NOT in a SQL table: the core reads `Talent.dbc` and `TalentTab.dbc` at startup (`SpellMgr::LoadSpellTalentRanks`) and logs an error for every talent that references a missing spell, so add the spells first.
+
+Step 1 - create the monk tab in `TalentTab.dbc`:
+- new row with the next free id (the existing tabs are 0-9, use 10)
+- name in your locale (e.g. "Monje"), any valid icon id
+- ClassMask = 2048 (the monk class mask from shareddefines.h)
+
+Step 2 - create the talent rows in `Talent.dbc` (pick free ids above the last existing row):
+```
+1  ID               unique talent row id
+2  iRefID_TalentTab your monk tab (10)
+3  tierID           row in the tree
+4  columnIndex      column in the tree
+5-9 iRefID_spellRank spell ids, one per rank (up to 5 ranks, 0 when empty)
+14 iRefID_prereqTalent id of the talent that unlocks this one (0 for first tier)
+17 iRefID_prereqRank points required in that talent
+20 flags            1 if the talent only has one point, otherwise 0
+21 requiredSpellID  0
+```
+
+Example tree:
+```
+tier 1: [Tiger Palm (5 pts)]    [Brew (1 pt)]
+tier 2: [Jade Serpent Strike (requires 5 in Tiger Palm)]
+```
+- row id=900: tab=10, tier=1, col=1, spellRank1=60001, prereq=0, flags=0
+- row id=901: tab=10, tier=1, col=2, spellRank1=60003, prereq=0, flags=1 (single point)
+- row id=902: tab=10, tier=2, col=1, spellRank1=60002, prereqTalent=900, prereqRank=5, flags=0
+
+**AFTER UPDATING THE DBCs RESTART THE SERVER AND CHECK THE LOG: EVERY "does not exist" ERROR MEANS A SPELL OR TALENT REFERENCE IS WRONG. THEN CREATE A MONK AND OPEN ITS TALENT WINDOW TO VERIFY THE TREE**
