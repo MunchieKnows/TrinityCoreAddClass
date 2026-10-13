@@ -14,6 +14,11 @@ Final product: https://www.youtube.com/watch?v=mnOWoI1tVKw
    2. [CharacterCreate.xml](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-charactercreatexml)
    3. [GlueStrings.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#gluexml-gluestringslua)
    4. [Constants.lua](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#framexml-constantslua)
+3. [Starting gear](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#starting-gear)
+   1. [CharStartOutfit.dbc](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#charstartoutfitdbc)
+   2. [playercreateinfo (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo-world-database)
+   3. [playercreateinfo_item (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#playercreateinfo_item-world-database)
+   4. [Starting spells and action bar (world database)](https://github.com/MunchieKnows/TrinityCoreAddClass/blob/master/README.md#starting-spells-and-action-bar-world-database)
 
 ## Changes to the core files
 
@@ -284,3 +289,72 @@ CLASS_ICON_TCOORDS = {
 1. Color for /who
 2. Class order
 3. Icon again
+
+## Starting gear
+
+**THE STARTING GEAR IS DATA-DRIVEN: THE MAIN KIT COMES FROM `CharStartOutfit.dbc` (client) AND THE REST FROM THE WORLD DATABASE. NO CORE CODE CHANGES ARE NEEDED FOR THIS PART**
+
+When a character is created the core does this (`Player.cpp`, look for `GetCharStartOutfitEntry`):
+1. Looks up the outfit in `CharStartOutfit.dbc` by **race + class + sex** and stores every item in the best slot (food x4, drink x2)
+2. Adds the extra items from the `playercreateinfo_item` table
+3. Learns the spells/skills of `playercreateinfo_spell_custom` / `playercreateinfo_skills` and casts the spells of `playercreateinfo_cast_spell`
+4. Fills the action bar with `playercreateinfo_action`
+5. Spawns you at the position defined in `playercreateinfo`
+
+### CharStartOutfit.dbc
+This DBC holds the gear every character spawns with: one row per race/class/sex, up to 24 items per row. The server reads this file too - if an item id doesn't exist in `item_template` it will log an error at startup (`ObjectMgr.cpp`) and skip that item.
+
+Fields the core uses (the rest can stay as they are):
+```
+id              uint   unique row id, pick a free one (continue after the last existing row)
+race            byte   race id (1=Human, 2=Orc, 4=Dwarf, 8=NightElf, 16=Undead, 32=Tauren, 64=Gnome, 128=Troll, 512=BloodElf, 1024=Draenei)
+class           byte   class id (MONK = 12)
+sex             byte   0=male, 1=female
+outfit          byte   leave 0
+item_1..item_24 int    item entries, -1 when the slot is empty
+```
+
+Steps:
+1. Open `CharStartOutfit.dbc` with a DBC editor (e.g. DbcEditor)
+2. Look at an existing leather row of the same race (rogue/hunter) to see how many items and which slots they use, that's your template
+3. Add one row per playable race: class=12, sex=0, with your monk gear item ids (chest, legs, boots, bracers, belt, cloak, main-hand weapon... fill the rest with -1)
+4. Duplicate every row with sex=1 for the female characters
+5. Save the DBC to both the client Data folder and the server dbc folder
+
+**REMEMBER: EVERY ITEM ID YOU PUT HERE MUST EXIST IN `item_template`, IF YOU CREATE NEW ITEMS FOR THE MONK GEAR ADD THEM TO THE DATABASE FIRST**
+
+### playercreateinfo (world database)
+Spawn point per race/class. You need a row for **every** race that can create a monk, otherwise character creation will fail.
+```sql
+-- human monk -> Elwynn Forest
+INSERT INTO `playercreateinfo` (`race`, `class`, `map`, `zone`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES
+(1, 12, 0, 34, -8837.4, 626.57, 99.615, 2.3562);
+-- repeat for each playable race with its own spawn point (orc -> Durotar, undead -> Tirisfal Glades, ...)
+```
+Note: some older TDB versions of this table use a single `ID` column = class*100+race (human monk = 1201) instead of separate `race`/`class` columns, check yours.
+
+### playercreateinfo_item (world database)
+Extra items on top of the DBC outfit, with amount. Use it for things you don't want to put in the DBC (flasks, tokens...):
+```sql
+INSERT INTO `playercreateinfo_item` (`race`, `class`, `itemid`, `amount`) VALUES
+(1, 12, <item id>, 1);
+```
+
+### Starting spells and action bar (world database)
+Spells learned at creation, spells cast when you spawn, and the initial action bar:
+```sql
+-- spell learned on creation (example: Stun). racemask/classmask are bitmasks, monk class mask = 2048, human race mask = 1
+INSERT INTO `playercreateinfo_spell_custom` (`racemask`, `classmask`, `Spell`) VALUES
+(1, 2048, 740);
+
+-- spell cast right after spawning (optional)
+INSERT INTO `playercreateinfo_cast_spell` (`raceMask`, `classMask`, `spell`) VALUES
+(1, 2048, <spell id>);
+
+-- action bar: button 1 = Stun (type 0 = spell, type 1 = item)
+INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES
+(1, 12, 1, 740, 0);
+```
+Add here the starter spells of your monk work (the ones from the spell family we defined above).
+
+**AFTER UPDATING THE DBC AND IMPORTING THE SQL, RESTART THE SERVER AND CREATE A MONK: IT SHOULD SPAWN WITH ITS GEAR EQUIPPED AT THE RIGHT POSITION. IF IT SPAWNS EMPTY, CHECK THE LOG FOR `CharStartOutfit`/`item_template` ERRORS**
